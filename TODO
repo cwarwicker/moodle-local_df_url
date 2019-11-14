@@ -1,0 +1,9 @@
+- Settings page
+    - Add/edit urls
+    - Remove urls
+    - Enable/disable urls
+    - Enable/disable whole plugin
+- Export url config
+- Import url config
+- Insert defaults on plugin install
+- Behat?
