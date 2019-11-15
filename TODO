@@ -1,3 +1,5 @@
+- Generate nice url button to display on all pages with matching urls.
+- Setting to rewrite urls in DOM
 - Settings page
     - Add/edit urls
     - Remove urls
@@ -6,4 +8,5 @@
 - Export url config
 - Import url config
 - Insert defaults on plugin install
+- Logging
 - Behat?

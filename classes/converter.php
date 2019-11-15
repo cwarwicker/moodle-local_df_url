@@ -72,7 +72,9 @@ class converter {
         // Require the file so we can access the functions/classes in it.
         // We don't want any output it might bring with it though, so wrap it in ob_start and ob_end_clean.
         ob_start();
+        chdir( dirname($file) );
         require_once($file);
+        chdir( $CFG->dirroot . '/local/df_url' );
         ob_end_clean();
 
         // If it's a class method.

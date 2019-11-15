@@ -22,7 +22,6 @@
  */
 
 require_once('../../config.php');
-
 /**
  *
  * Example URL: /course/1-short-name/view
@@ -56,14 +55,55 @@ require_once('../../config.php');
  *
  */
 
-$params = required_param('qs', PARAM_TEXT);
+$path = required_param('qs', PARAM_RAW);
+$url = local_df_url\router::route($path);
 
-$url = local_df_url\router::route($params);
-var_dump($url);
-// if ($url !== false) {
-//     redirect($url);
-// } else {
-//     redirect( new moodle_url() );
-// }
+if ($url !== false) {
 
+    // Put params back into GET global.
+    foreach ($url->params() as $key => $val) {
+        $_GET[$key] = $val;
+    }
+
+    $file = $url->out_omit_querystring();
+
+    // Remove wwwroot.
+    if (strpos($file, $CFG->wwwroot) === 0) {
+        $file = $CFG->dirroot . substr($file, strlen($CFG->wwwroot));
+    } else {
+        $file = false;
+    }
+
+    // If it's a valid file, require it.
+    if (is_file($file)) {
+
+        // Change to the directory of the file, so require statements are valid inside the file(s).
+        chdir(dirname($file));
+
+        // Require the file that would normally be loaded up by going to that url.
+        require_once($file);
+
+        exit;
+
+    }
+
+}
+
+// If we got this far, there was a problem with the routing.
+// If we have debugging enabled, display an error page. Otherwise, redirect to index.
+if ($CFG->debugdisplay) {
+
+    header('HTTP/1.0 404 Not Found');
+    $PAGE->set_url( ($url) ? $url->out() : ($CFG->wwwroot . $_SERVER['REQUEST_URI']) );
+    $PAGE->set_context( context_course::instance(SITEID) );
+    $PAGE->set_title( get_string('error404', 'local_df_url') );
+    $PAGE->set_heading( get_string('error404', 'local_df_url') );
+    echo $OUTPUT->header();
+    echo get_string('error404:info', 'local_df_url', s($_SERVER['REQUEST_URI']));
+    echo $OUTPUT->footer();
+    exit;
+
+} else {
+    redirect( new moodle_url('/') );
+}
 
