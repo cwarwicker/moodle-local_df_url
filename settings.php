@@ -16,13 +16,13 @@
 
 /**
  * @package    local_df_url
- * @copyright  2019 Conn Warwicker
+ * @copyright  2020 onwards Conn Warwicker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-if ( $hassiteconfig ){
+if ($hassiteconfig) {
 
     $settings = new admin_externalpage('local_df_url_settings',
         get_string('manageurls', 'local_df_url'),

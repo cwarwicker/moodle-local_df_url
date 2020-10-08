@@ -17,7 +17,7 @@
 /**
  * This is the router class which handles all re-routing to moodle urls
  * @package    local_df_url
- * @copyright  2019 Conn Warwicker
+ * @copyright  2020 onwards Conn Warwicker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,14 +27,21 @@ defined('MOODLE_INTERNAL') || die;
 
 class router {
 
-    public static function route($querystring) {
+    /**
+     * Take the query string passed to the router and work out which page we want to load.
+     * @param string $querystring
+     * @return \moodle_url|false
+     * @throws \dml_exception
+     */
+    public static function route(string $querystring) {
 
         global $DB;
 
-        $records = $DB->get_records('df_urls', array('enabled' => 1));
+        // Find all the patterns we have defined in the database and see if any of them lead to a converted url.
+        $records = $DB->get_records('local_df_urls', array('enabled' => 1), 'ordernum DESC');
         if ($records) {
 
-            foreach($records as $record) {
+            foreach ($records as $record) {
 
                 $url = self::convert_url($querystring, $record);
                 if ($url !== false) {
@@ -49,7 +56,14 @@ class router {
 
     }
 
-    public static function convert_url($querystring, $record) {
+    /**
+     * Try to convert the query string to a url, using the supplied database record.
+     * @param string $querystring
+     * @param \stdClass $record
+     * @return \moodle_url|false
+     * @throws \moodle_exception
+     */
+    public static function convert_url(string $querystring, \stdClass $record) {
 
         global $CFG;
 
@@ -74,7 +88,7 @@ class router {
             $info = self::get_param_data($params, $number);
             if (!is_null($info)) {
 
-                $newvalue = self::get_value($value, $info->type, (isset($info->data)) ? $info->data : null);
+                $newvalue = self::get_value($value, $info);
 
                 // If any of the values are NULL, then the routing failed.
                 if (is_null($newvalue)) {
@@ -92,11 +106,19 @@ class router {
 
     }
 
-    public static function get_param_data($params, $number) {
+    /**
+     * Get the data for a specific parameter number from a local_df_url record's params field.
+     * @param array $params
+     * @param int $number
+     * @return \stdClass|null
+     */
+    public static function get_param_data(array $params, int $number) {
 
-        foreach ($params as $param) {
-            if ($param->id == $number) {
-                return $param;
+        if ($params) {
+            foreach ($params as $param) {
+                if ($param->id == $number) {
+                    return $param;
+                }
             }
         }
 
@@ -104,16 +126,27 @@ class router {
 
     }
 
-    public static function get_value($value, $type, $data = null) {
+    /**
+     * Given a value and it's parameter type, convert it into what we want returned.
+     * @param string $value
+     * @param \stdClass $info
+     * @return string|null
+     */
+    public static function get_value(string $value, \stdClass $info) {
 
-        $type = strtolower($type);
+        $type = strtolower($info->type);
 
         // Do we want to convert the value into something else?
         if ($type === 'convert') {
 
-            return self::convert_variable($value, $data);
+            return self::convert_variable($value, $info->data);
 
         } else {
+
+            // Is the value supplied empty but there was a default value defined?
+            if ($value === '' && isset($info->default)) {
+                $value = $info->default;
+            }
 
             // Any other type and we assume 'plain'.
             // In which case, we do nothing but urlencode it.
@@ -121,10 +154,16 @@ class router {
 
         }
 
-
     }
 
-    public static function convert_variable($value, array $data) {
+    /**
+     * Convert a query string variable.
+     * This can be used to do things like convert ids to names and visa versa.
+     * @param string $value
+     * @param array $data
+     * @return string|null
+     */
+    public static function convert_variable(string $value, array $data) {
 
         // Type of conversion.
         $type = (isset($data[0])) ? $data[0] : false;

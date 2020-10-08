@@ -16,8 +16,8 @@
 
 /**
  * This is the router file which takes the url and querystring and attempts to find a redirect.
- * @package    local_df_nice_urls
- * @copyright  2019 Conn Warwicker
+ * @package    local_df_url
+ * @copyright  2020 onwards Conn Warwicker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -55,19 +55,20 @@ require_once('../../config.php');
  *
  */
 
-$path = required_param('qs', PARAM_RAW);
-$url = local_df_url\router::route($path);
+$querystring = required_param('qs', PARAM_RAW);
+$url = local_df_url\router::route($querystring);
 
 if ($url !== false) {
 
-    // Put params back into GET global.
+    // Take the parameters we got from the querystring and put them into the $_GET array as they would normally have been.
     foreach ($url->params() as $key => $val) {
         $_GET[$key] = $val;
     }
 
+    // Work out which file we need to actually load.
     $file = $url->out_omit_querystring();
 
-    // Remove wwwroot.
+    // Substitute www root for dir root.
     if (strpos($file, $CFG->wwwroot) === 0) {
         $file = $CFG->dirroot . substr($file, strlen($CFG->wwwroot));
     } else {
@@ -83,6 +84,7 @@ if ($url !== false) {
         // Require the file that would normally be loaded up by going to that url.
         require_once($file);
 
+        // Stop processing. Everything else is handled by requiring the specified file above.
         exit;
 
     }

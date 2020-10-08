@@ -17,7 +17,7 @@
 /**
  * This is the converter class which handles converting values in the urls.
  * @package    local_df_url
- * @copyright  2019 Conn Warwicker
+ * @copyright  2020 conwards Conn Warwicker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

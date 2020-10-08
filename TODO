@@ -10,3 +10,35 @@
 - Insert defaults on plugin install
 - Logging
 - Behat?
+
+
+NOTES:
+- As we are doing shortnames of things with [a-z0-9] when we convert links to short links, need to strip out other chars.
+- Requires config change at top of file (because some plugins do require some do require_once and if it does require() then it fucks up):
+    global $CFG;
+    if (!isset($CFG)) {
+        $CFG = new stdClass();
+    }
+
+----------------
+Record:
+
+^course\/(\d+)\-(.*?)\/(.*+)
+/course/${3}.php?id=${1}	[
+ {
+ "id": 3,
+ "type": "plain"
+ },
+ {
+ "id": 1,
+ "type": "plain"
+ }
+ ]
+
+Example:
+http://moodledemo.cmr.local/38/local/df_url/router.php?qs=course/3-shortname/view
+
+
+Examples of ones we want:
+http://moodledemo.cmr.local/38/local/df_url/router.php?qs=course/24-shortname/view    http://moodledemo.cmr.local/38/local/df_url/router.php?qs=ncourse/24-shortname/edit
+http://moodledemo.cmr.local/38/local/df_url/router.php?qs=course/24-shortname/assign/65-test-assignment/view
