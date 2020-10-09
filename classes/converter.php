@@ -17,7 +17,7 @@
 /**
  * This is the converter class which handles converting values in the urls.
  * @package    local_df_url
- * @copyright  2020 conwards Conn Warwicker
+ * @copyright  2020 onwards Conn Warwicker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,11 +27,17 @@ defined('MOODLE_INTERNAL') || die;
 
 class converter {
 
-    public static function convert_db($value, array $data) {
+    /**
+     * Convert a value by using a database table and a from and to field.
+     * @param string $value The value to be converted
+     * @param array $data This array should contain exactly 3 elements: [table, fieldfrom, fieldto]
+     * @return mixed
+     * @throws \dml_exception
+     */
+    public static function convert_db(string $value, array $data) {
 
         global $DB;
 
-        // There must be 3 elements in the $data array - table, inputfield and outputfield.
         if (count($data) <> 3) {
             return null;
         }
@@ -45,9 +51,19 @@ class converter {
 
     }
 
+    /**
+     * Convert a value by using a function or class method
+     * @param $value The value to be converted
+     * @param array $data This array should contain exactly 2 elements. These should be: [filepath, functionname].
+     *                    E.g.
+     *                      ["local/my_plugin/my_file.php", "my_function"]
+     *                      ["local/my_plugin/classes/my_class.php", "local_my_plugin\my_class::my_method"]
+     * @return string|null
+     */
     public static function convert_hook($value, array $data) {
 
         global $CFG;
+
 
         // There must be 2 elements in the $data array - file and function/method.
         if (count($data) <> 2) {
@@ -72,9 +88,7 @@ class converter {
         // Require the file so we can access the functions/classes in it.
         // We don't want any output it might bring with it though, so wrap it in ob_start and ob_end_clean.
         ob_start();
-        chdir( dirname($file) );
         require_once($file);
-        chdir( $CFG->dirroot . '/local/df_url' );
         ob_end_clean();
 
         // If it's a class method.

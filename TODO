@@ -19,6 +19,7 @@ NOTES:
     if (!isset($CFG)) {
         $CFG = new stdClass();
     }
+- Mod records need higher ordernum than course, as they both start with course, so they need to be run first. Same goes for any which have the same start.
 
 ----------------
 Record:
@@ -42,3 +43,7 @@ http://moodledemo.cmr.local/38/local/df_url/router.php?qs=course/3-shortname/vie
 Examples of ones we want:
 http://moodledemo.cmr.local/38/local/df_url/router.php?qs=course/24-shortname/view    http://moodledemo.cmr.local/38/local/df_url/router.php?qs=ncourse/24-shortname/edit
 http://moodledemo.cmr.local/38/local/df_url/router.php?qs=course/24-shortname/assign/65-test-assignment/view
+
+
+-------------------
+

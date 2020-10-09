@@ -89,6 +89,7 @@ class router {
             if (!is_null($info)) {
 
                 $newvalue = self::get_value($value, $info);
+                var_dump($newvalue);exit;
 
                 // If any of the values are NULL, then the routing failed.
                 if (is_null($newvalue)) {
@@ -159,17 +160,14 @@ class router {
     /**
      * Convert a query string variable.
      * This can be used to do things like convert ids to names and visa versa.
-     * @param string $value
-     * @param array $data
+     * @param string $value TODO
+     * @param array $data TODO
      * @return string|null
      */
     public static function convert_variable(string $value, array $data) {
 
-        // Type of conversion.
-        $type = (isset($data[0])) ? $data[0] : false;
-
         // Does this conversion method exist?
-        $method = 'convert_' . $type;
+        $method = 'convert_' . $data[0];
         if (method_exists('\local_df_url\converter', $method)) {
             array_shift($data);
             return \local_df_url\converter::$method($value, $data);
