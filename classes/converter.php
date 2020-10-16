@@ -64,7 +64,6 @@ class converter {
 
         global $CFG;
 
-
         // There must be 2 elements in the $data array - file and function/method.
         if (count($data) <> 2) {
             return null;

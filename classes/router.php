@@ -16,6 +16,7 @@
 
 /**
  * This is the router class which handles all re-routing to moodle urls
+ *
  * @package    local_df_url
  * @copyright  2020 onwards Conn Warwicker
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -23,22 +24,24 @@
 
 namespace local_df_url;
 
+use moodle_url, stdClass;
+
 defined('MOODLE_INTERNAL') || die;
 
 class router {
 
     /**
      * Take the query string passed to the router and work out which page we want to load.
+     *
      * @param string $querystring
-     * @return \moodle_url|false
+     * @return moodle_url|false
      * @throws \dml_exception
+     * @throws \moodle_exception
      */
     public static function route(string $querystring) {
 
-        global $DB;
-
         // Find all the patterns we have defined in the database and see if any of them lead to a converted url.
-        $records = $DB->get_records('local_df_urls', array('enabled' => 1), 'ordernum DESC');
+        $records = record::get_enabled();
         if ($records) {
 
             foreach ($records as $record) {
@@ -57,18 +60,49 @@ class router {
     }
 
     /**
-     * Try to convert the query string to a url, using the supplied database record.
-     * @param string $querystring
-     * @param \stdClass $record
-     * @return \moodle_url|false
+     * Invert a Moodle url to a nice url.
+     * @param string $url Moodle url string.
+     * @return false|moodle_url
+     * @throws \dml_exception
      * @throws \moodle_exception
      */
-    public static function convert_url(string $querystring, \stdClass $record) {
+    public static function invert_route(string $url) {
+
+        // Find all the patterns we have defined in the database and see if any of them lead to a converted url.
+        $records = record::get_enabled();
+        if ($records) {
+
+            foreach ($records as $record) {
+
+                $newurl = self::invert_url($record, $url);
+                if ($newurl !== false) {
+                    return $newurl;
+                }
+
+            }
+
+        }
+
+        return false;
+
+    }
+
+    /**
+     * Try to convert the query string to a url, using the supplied database record.
+     *
+     * This takes a "nice" url from the querystring and works out the actual Moodle URL it should be loading.
+     *
+     * @param string $querystring E.g. course/shortname/glossary/71-test-assignment/view
+     * @param stdClass $record Record from the local_df_urls table
+     * @return moodle_url|false E.g. http://yourmoodle.com/mod/glossary/view.php?id=71
+     * @throws \moodle_exception
+     */
+    public static function convert_url(string $querystring, record $record) {
 
         global $CFG;
 
         // See if the url matches this pattern.
-        preg_match('/' . $record->pattern . '/', $querystring, $matches);
+        preg_match('/' . $record->regex . '/', $querystring, $matches);
 
         // If there are no matches with this pattern, then return false and we can try the next one.
         if (!$matches) {
@@ -78,7 +112,7 @@ class router {
         // Remove first match, as that's the whole thing and we only want the individual variables.
         unset($matches[0]);
 
-        $params = json_decode($record->params);
+        $params = $record->conversionparams;
         $url = $CFG->wwwroot . $record->conversion;
 
         // Loop through matches and convert
@@ -89,7 +123,6 @@ class router {
             if (!is_null($info)) {
 
                 $newvalue = self::get_value($value, $info);
-                var_dump($newvalue);exit;
 
                 // If any of the values are NULL, then the routing failed.
                 if (is_null($newvalue)) {
@@ -102,13 +135,74 @@ class router {
 
         }
 
-        $url = new \moodle_url($url);
+        $url = new moodle_url($url);
         return $url;
 
     }
 
     /**
+     * Given the pattern of a nice url and a non-nice URL, convert the url to a nice one.
+     *
+     * @param record $record Record from the local_df_urls table.
+     * @param string $url E.g. /course/view.php?id=123
+     * @return moodle_url|false E.g. /course/shortname/view
+     * @throws \moodle_exception
+     */
+    public static function invert_url(record $record, string $url) {
+
+        $pattern = $record->invert_conversion();
+
+        // Does the URL we found on the page, match the inverted conversion?
+        if (preg_match($pattern, $url, $matches)) {
+
+            var_dump($url);
+            var_dump($pattern);
+
+            // Remove first match, as that's the whole thing and we only want the individual variables.
+            unset($matches[0]);
+
+            // Okay, so that means we want to now convert the normal Moodle URL to the nice one.
+            // Start by getting the variables out of the simple property of the record.
+            if (preg_match_all('/\$\{(\d)\}/', $record->simple, $simplematches)) {
+
+                // Start with the readable nice url from the record and convert the variables.
+                $niceurl = $record->simple;
+
+                // Loop through the simple matches.
+                foreach ($simplematches[1] as $number) {
+
+                    // Does this number exist in the inversion params?
+                    $info = self::get_param_data($record->inversionparams, $number);
+
+                    // Or does it exist on the main conversion params?
+                    if (is_null($info)) {
+                        $info = self::get_param_data($record->conversionparams, $number);
+                    }
+
+                    if (!is_null($info)) {
+
+                        $key = (isset($info->use)) ? $info->use : $number;
+                        $value = self::get_value($matches[$key], $info);
+
+                        $niceurl = str_replace('${' . $number . '}', $value, $niceurl);
+
+                    }
+
+                }
+
+                return new moodle_url($niceurl);
+
+            }
+
+        }
+
+        return false;
+
+    }
+
+    /**
      * Get the data for a specific parameter number from a local_df_url record's params field.
+     *
      * @param array $params
      * @param int $number
      * @return \stdClass|null
@@ -129,6 +223,7 @@ class router {
 
     /**
      * Given a value and it's parameter type, convert it into what we want returned.
+     *
      * @param string $value
      * @param \stdClass $info
      * @return string|null
@@ -160,8 +255,9 @@ class router {
     /**
      * Convert a query string variable.
      * This can be used to do things like convert ids to names and visa versa.
-     * @param string $value TODO
-     * @param array $data TODO
+     *
+     * @param string $value This is the value to be converted
+     * @param array $data This is an array containing the conversion data, such as type
      * @return string|null
      */
     public static function convert_variable(string $value, array $data) {

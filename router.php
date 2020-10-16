@@ -101,7 +101,7 @@ if ($CFG->debugdisplay) {
     $PAGE->set_title( get_string('error404', 'local_df_url') );
     $PAGE->set_heading( get_string('error404', 'local_df_url') );
     echo $OUTPUT->header();
-    echo get_string('error404:info', 'local_df_url', s($_SERVER['REQUEST_URI']));
+    echo get_string('error404:info', 'local_df_url', s($querystring));
     echo $OUTPUT->footer();
     exit;
 
