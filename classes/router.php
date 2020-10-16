@@ -102,7 +102,7 @@ class router {
         global $CFG;
 
         // See if the url matches this pattern.
-        preg_match('/' . $record->regex . '/', $querystring, $matches);
+        preg_match('/' . $record->regex . '/i', $querystring, $matches);
 
         // If there are no matches with this pattern, then return false and we can try the next one.
         if (!$matches) {
@@ -155,9 +155,6 @@ class router {
         // Does the URL we found on the page, match the inverted conversion?
         if (preg_match($pattern, $url, $matches)) {
 
-            var_dump($url);
-            var_dump($pattern);
-
             // Remove first match, as that's the whole thing and we only want the individual variables.
             unset($matches[0]);
 
@@ -168,21 +165,23 @@ class router {
                 // Start with the readable nice url from the record and convert the variables.
                 $niceurl = $record->simple;
 
+                // Sort them numerically, as there may be parameters which require the value of previous ones.
+                sort($simplematches[1]);
+
                 // Loop through the simple matches.
-                foreach ($simplematches[1] as $number) {
+                for ($number = 1; $number <= max($simplematches[1]); $number++) {
 
                     // Does this number exist in the inversion params?
                     $info = self::get_param_data($record->inversionparams, $number);
-
-                    // Or does it exist on the main conversion params?
-                    if (is_null($info)) {
-                        $info = self::get_param_data($record->conversionparams, $number);
-                    }
-
                     if (!is_null($info)) {
 
                         $key = (isset($info->use)) ? $info->use : $number;
                         $value = self::get_value($matches[$key], $info);
+
+                        // If this is a new value derived from a hook/database query, we can add that into the $matches array for accessing in later loops.
+                        if (!array_key_exists($number, $matches)) {
+                            $matches[$number] = $value;
+                        }
 
                         $niceurl = str_replace('${' . $number . '}', $value, $niceurl);
 

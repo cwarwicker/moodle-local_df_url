@@ -135,12 +135,32 @@ class record {
      * @return string
      */
     public function invert_conversion() {
+
+        global $CFG;
+
+        // Replace variables with a temporary replacement, which will then in turn be replaced with a matching group.
         $pattern = preg_replace('/\$\{(.*?)\}/', '_DF_URL_REPLACEMENT_', $this->conversion);
+
+        // Prepend the wwwroot to the beginning of the pattern, as we don't want to convert links to other sites.
+        $pattern = $CFG->wwwroot . $pattern;
+
+        // Add backslashes in front of regex key characters, so as not to break it.
         $pattern = preg_quote($pattern);
+
+        // That doesn't include the forward slash, so do that manually.
         $pattern = str_replace('/', '\/', $pattern);
+
+        // Finally replace that temporary replacement with the regex to match a group.
         $pattern = preg_replace('/_DF_URL_REPLACEMENT_/', '(.*?)', $pattern);
+
+        // Prepend ^ to match the beginning of the string. Can't do that earlier or it gets escaped by preg_quote.
+        $pattern = '^' . $pattern;
+
+        // Make it an Ungreedy match.
         $pattern = '/'.$pattern.'/U';
+
         return $pattern;
+
     }
 
     /**

@@ -103,7 +103,7 @@ class converter {
             }
 
             // Call the method and pass the value through.
-            return urlencode( $class::$method($value) );
+            $returnvalue = $class::$method($value);
 
         } else {
 
@@ -115,9 +115,13 @@ class converter {
             }
 
             // Call the function and pass the value through.
-            return urlencode( $func($value) );
+            $returnvalue = $func($value);
 
         }
+
+        // Convert anything that's not a-z0-9- to a hyphen.
+        $returnvalue = preg_replace('/[^a-z0-9\-]/i', '-', $returnvalue);
+        return urlencode($returnvalue);;
 
     }
 
