@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_df_url\router;
+
 require_once('../../config.php');
 /**
  *
@@ -54,6 +56,12 @@ require_once('../../config.php');
  *      This will do: require_once($CFG->dirroot . '/mod/my_mod/classes/my_mod.php'); return my_mod::my_function($data);
  *
  */
+
+// Is the plugin enabled? If not, just redirect back to site home.
+if (!router::is_enabled()) {
+    redirect( new moodle_url('/') );
+    exit;
+}
 
 $querystring = required_param('qs', PARAM_RAW);
 $url = local_df_url\router::route($querystring);

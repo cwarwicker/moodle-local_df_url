@@ -24,12 +24,45 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
 
-    $settings = new admin_externalpage('local_df_url_settings',
-        get_string('manageurls', 'local_df_url'),
-        new moodle_url('/local/df_url/config.php'),
-        'local/df_url:config'
-    );
+    $ADMIN->add('localplugins', new admin_category('local_df_url', get_string('pluginname', 'local_df_url')));
+    $page = new admin_settingpage('manage_local_df_url', get_string('manageurlconversions', 'local_df_url'));
 
-    $ADMIN->add( 'localplugins', $settings );
+    if ($ADMIN->fulltree) {
+
+        // Enable/Disable Plugin.
+        $page->add( new admin_setting_configcheckbox(
+            'local_df_url/enabled',
+            get_string('setting:enabled', 'local_df_url'),
+            get_string('setting:enabled:info', 'local_df_url'),
+            1
+        ) );
+
+        // Enable/Disable Caching.
+        $page->add( new admin_setting_configcheckbox(
+            'local_df_url/caching',
+            get_string('setting:caching', 'local_df_url'),
+            get_string('setting:caching:info', 'local_df_url'),
+            1
+        ) );
+
+        // Enable/Disable javascript inversion.
+        $page->add( new admin_setting_configcheckbox(
+            'local_df_url/inversion',
+            get_string('setting:inversion', 'local_df_url'),
+            get_string('setting:inversion:info', 'local_df_url'),
+            1
+        ) );
+
+        // Table to display list of URLs.
+        $editor = new moodle_url('/local/df_url/edit.php');
+        $page->add( new admin_setting_description(
+            'local_df_url/nonsetting',
+            get_string('urls', 'local_df_url'),
+            get_string('setting:urls:info', 'local_df_url', $editor->out())
+        ) );
+
+    }
+
+    $ADMIN->add('localplugins', $page);
 
 }

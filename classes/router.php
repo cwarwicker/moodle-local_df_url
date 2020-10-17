@@ -31,6 +31,16 @@ defined('MOODLE_INTERNAL') || die;
 class router {
 
     /**
+     * Check if we have enabled the plugin in the plugin settings.
+     * @return bool
+     * @throws \dml_exception
+     */
+    public static function is_enabled() : bool {
+        $setting = get_config('local_df_url', 'enabled');
+        return ($setting === '1');
+    }
+
+    /**
      * Take the query string passed to the router and work out which page we want to load.
      *
      * @param string $querystring
@@ -68,6 +78,11 @@ class router {
      */
     public static function invert_route(string $url) {
 
+        // Is the plugin enabled? And is inversion enabled? If not, don't do anything.
+        if (!router::is_enabled() || !router::using_inversion()) {
+            return false;
+        }
+
         // Find all the patterns we have defined in the database and see if any of them lead to a converted url.
         $records = record::get_enabled();
         if ($records) {
@@ -104,7 +119,7 @@ class router {
         $querystring = strtolower($querystring);
 
         // If we are using caching and this querystring has been cached, we can just use that cached url.
-        if (static::use_caching()) {
+        if (static::using_caching()) {
             $cache = static::get_cache();
             $converted = $cache->get('converted');
             if ($converted && array_key_exists($querystring, $converted)) {
@@ -149,7 +164,7 @@ class router {
         $url = new moodle_url($url);
 
         // If caching is enabled, add this to the cache so we can get it faster next time.
-        if (static::use_caching()) {
+        if (static::using_caching()) {
 
             // Check if we already have an array of converted query strings to urls. If not, set to an empty array.
             if (($converted = $cache->get('converted')) === false) {
@@ -166,9 +181,24 @@ class router {
 
     }
 
-    // TODO setting
-    protected static function use_caching() : bool {
-        return true;
+    /**
+     * Check if we have enabled caching in the plugin settings.
+     * @return bool
+     * @throws \dml_exception
+     */
+    protected static function using_caching() : bool {
+        $setting = get_config('local_df_url', 'caching');
+        return ($setting === '1');
+    }
+
+    /**
+     * Check if we have enabled inverted conversions in the plugin settings.
+     * @return bool
+     * @throws \dml_exception
+     */
+    protected static function using_inversion() : bool {
+        $setting = get_config('local_df_url', 'inversion');
+        return ($setting === '1');
     }
 
     /**
@@ -186,7 +216,7 @@ class router {
         $pattern = $record->invert_conversion();
 
         // If we are using caching and this moodle url inversion has been cached, we can just use that cached nice url.
-        if (static::use_caching()) {
+        if (static::using_caching()) {
             $cache = static::get_cache();
             $inverted = $cache->get('inverted');
             if ($inverted && array_key_exists($url, $inverted)) {
@@ -234,7 +264,7 @@ class router {
                 $niceurl = new moodle_url($niceurl);
 
                 // If caching is enabled, add this to the cache so we can get it faster next time.
-                if (static::use_caching()) {
+                if (static::using_caching()) {
 
                     // Check if we already have an array of converted query strings to urls. If not, set to an empty array.
                     if (($inverted = $cache->get('inverted')) === false) {
