@@ -23,7 +23,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 $plugin->component = 'local_df_url';
-$plugin->version  = 2019111400;
+$plugin->version  = 2019111401;
 $plugin->release = 'v0.1-alpha';
 $plugin->maturity = MATURITY_ALPHA;
 $plugin->cron = 0;

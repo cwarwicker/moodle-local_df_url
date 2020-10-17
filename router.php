@@ -98,10 +98,10 @@ if ($CFG->debugdisplay) {
     header('HTTP/1.0 404 Not Found');
     $PAGE->set_url( ($url) ? $url->out() : ($CFG->wwwroot . $_SERVER['REQUEST_URI']) );
     $PAGE->set_context( context_course::instance(SITEID) );
-    $PAGE->set_title( get_string('error404', 'local_df_url') );
-    $PAGE->set_heading( get_string('error404', 'local_df_url') );
+    $PAGE->set_title( get_string('error:404', 'local_df_url') );
+    $PAGE->set_heading( get_string('error:404', 'local_df_url') );
     echo $OUTPUT->header();
-    echo get_string('error404:info', 'local_df_url', s($querystring));
+    echo get_string('error:404:info', 'local_df_url', s($querystring));
     echo $OUTPUT->footer();
     exit;
 

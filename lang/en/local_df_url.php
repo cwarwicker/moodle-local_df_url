@@ -22,7 +22,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$string['pluginname'] = 'URL-Converter';
+$string['cachedef_urls'] = 'Converted URLs are stored in this cache';
+$string['error:404'] = 'Error 404 - Page not found';
+$string['error:404:info'] = 'The requested URL {$a} was not found on this server.';
 $string['manageurls'] = 'Manage URLs';
-$string['error404'] = 'Error 404 - Page not found';
-$string['error404:info'] = 'The requested URL {$a} was not found on this server.';
+$string['pluginname'] = 'URL-Converter';

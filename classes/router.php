@@ -24,7 +24,7 @@
 
 namespace local_df_url;
 
-use moodle_url, stdClass;
+use cache, cache_application, moodle_url, stdClass;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -101,6 +101,17 @@ class router {
 
         global $CFG;
 
+        $querystring = strtolower($querystring);
+
+        // If we are using caching and this querystring has been cached, we can just use that cached url.
+        if (static::use_caching()) {
+            $cache = static::get_cache();
+            $converted = $cache->get('converted');
+            if ($converted && array_key_exists($querystring, $converted)) {
+                return $converted[$querystring];
+            }
+        }
+
         // See if the url matches this pattern.
         preg_match('/' . $record->regex . '/i', $querystring, $matches);
 
@@ -136,8 +147,28 @@ class router {
         }
 
         $url = new moodle_url($url);
+
+        // If caching is enabled, add this to the cache so we can get it faster next time.
+        if (static::use_caching()) {
+
+            // Check if we already have an array of converted query strings to urls. If not, set to an empty array.
+            if (($converted = $cache->get('converted')) === false) {
+                $converted = [];
+            }
+
+            // Add this query string -> url conversion to the cache.
+            $converted[$querystring] = $url;
+            $cache->set('converted', $converted);
+
+        }
+
         return $url;
 
+    }
+
+    // TODO setting
+    protected static function use_caching() : bool {
+        return true;
     }
 
     /**
@@ -150,7 +181,18 @@ class router {
      */
     public static function invert_url(record $record, string $url) {
 
+        $url = strtolower($url);
+
         $pattern = $record->invert_conversion();
+
+        // If we are using caching and this moodle url inversion has been cached, we can just use that cached nice url.
+        if (static::use_caching()) {
+            $cache = static::get_cache();
+            $inverted = $cache->get('inverted');
+            if ($inverted && array_key_exists($url, $inverted)) {
+                return $inverted[$url];
+            }
+        }
 
         // Does the URL we found on the page, match the inverted conversion?
         if (preg_match($pattern, $url, $matches)) {
@@ -189,7 +231,23 @@ class router {
 
                 }
 
-                return new moodle_url($niceurl);
+                $niceurl = new moodle_url($niceurl);
+
+                // If caching is enabled, add this to the cache so we can get it faster next time.
+                if (static::use_caching()) {
+
+                    // Check if we already have an array of converted query strings to urls. If not, set to an empty array.
+                    if (($inverted = $cache->get('inverted')) === false) {
+                        $inverted = [];
+                    }
+
+                    // Add this moodle url -> nice url inversion to the cache.
+                    $inverted[$url] = $niceurl;
+                    $cache->set('inverted', $inverted);
+
+                }
+
+                return $niceurl;
 
             }
 
@@ -269,6 +327,21 @@ class router {
         }
 
         return null;
+
+    }
+
+    /**
+     * Get the cache object for this plugin.
+     * @return cache_application
+     */
+    public static function get_cache() : cache_application {
+        return cache::make('local_df_url', 'urls');
+    }
+
+    public static function invert_urls(array $urls) : array {
+
+        $inverted = [];
+
 
     }
 
