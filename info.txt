@@ -1,0 +1,36 @@
+Converting Nice URL to Moodle URL
+================================
+
+- URL: http://moodle.com/course/13-test/view
+- QUERY_STRING: course/13-test/view
+- REGEX: ^course\/(\d+)\-([a-z0-9\-]+)\/?(.*+)
+- preg_match that REGEX and that QUERY_STRING and you get the matches:
+    [1] => '24'
+    [2] => 'TEST'
+    [3] => 'view'
+- CONVERSION: /course/${3}.php?id=${1}
+- So we know that we want match 3 from above to go where ${3} is and same for match 1 and ${1}
+- The values are converted, in this case they are just plain so nothing changes.
+    - This conversion checks the conversionparams array to see what type of converion is required for each one.
+- The variables are replaced and we end up with:
+    /course/view.php?id=24
+
+
+
+Converting Moodle URL to nice URL
+=================================
+
+- URL: http://moodle.com/course/view.php?id=13
+- We convert the CONVERSION from variables (/course/${3}.php?id=${1}) to regex so we can match against a moodle url
+- CONVERSION_REGEX: \/course\/(.*?)\.php\?id\=(.*?)
+- From that preg_match with the URL we get the matches:
+    [1] => view
+    [2] => 24
+- We can ignore the variable numbers in the conversion (3 and 1) as those are irrelvant as they have now been converted to matching groups and have their own match numbers (1 and 2 respectively).
+- SIMPLE: /course/${2}-${3}/${1}
+- Using the matching group numbers above (1 and 2) we can see that we want to replace ${1} in the simple URL with 'view' and ${2} with '24'.
+    - This conversion checks the inversionparams array to see what type of conversion is required for each one.
+    - We create the ${3} by specifying a 'use' option in its param info. Saying we want to use the value from ${2} and convert it in the database from ID to shortname.
+
+
+    
