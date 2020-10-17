@@ -23,10 +23,17 @@
 defined('MOODLE_INTERNAL') || die;
 
 $string['cachedef_urls'] = 'Converted URLs are stored in this cache';
+$string['conversion'] = 'Conversion';
+$string['conversioneditor'] = 'URL Conversion Editor';
+$string['disabled'] = 'Disabled';
+$string['enabled'] = 'Enabled';
 $string['error:404'] = 'Error 404 - Page not found';
 $string['error:404:info'] = 'The requested URL {$a} was not found on this server.';
 $string['generalsettings'] = 'General Settings';
-$string['manageurlconversions'] = 'Manage URL Conversions';
+$string['manage'] = 'Manage Plugin Settings';
+$string['manage:info'] = 'You can manage your URL conversions from this page. For each <b>type</b> you can only have 1 conversion enabled, so if you enable one the others will be automatically disabled.';
+$string['manageurls'] = 'Manage URL Conversions';
+$string['ordernum'] = 'Order';
 $string['pluginname'] = 'URL Converter';
 $string['setting:caching'] = 'Enable Caching';
 $string['setting:caching:info'] = 'URL conversions can be cached to save processing time.';
@@ -35,4 +42,6 @@ $string['setting:inversion:info'] = 'Links to standard Moodle URLs can be rewrit
 $string['setting:enabled'] = 'Enable Plugin';
 $string['setting:enabled:info'] = 'Is the plugin enabled?';
 $string['setting:urls:info'] = '<p><a href="{$a}" target="_blank">Open URL Conversion Editor in new window</a></p>';
+$string['type'] = 'Type';
+$string['urlregex'] = 'URL Regex';
 $string['urls'] = 'URLs';

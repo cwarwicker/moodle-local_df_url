@@ -25,7 +25,7 @@ defined('MOODLE_INTERNAL') || die;
 if ($hassiteconfig) {
 
     $ADMIN->add('localplugins', new admin_category('local_df_url', get_string('pluginname', 'local_df_url')));
-    $page = new admin_settingpage('manage_local_df_url', get_string('manageurlconversions', 'local_df_url'));
+    $page = new admin_settingpage('manage_local_df_url', get_string('manage', 'local_df_url'));
 
     if ($ADMIN->fulltree) {
 
@@ -53,16 +53,9 @@ if ($hassiteconfig) {
             1
         ) );
 
-        // Table to display list of URLs.
-        $editor = new moodle_url('/local/df_url/edit.php');
-        $page->add( new admin_setting_description(
-            'local_df_url/nonsetting',
-            get_string('urls', 'local_df_url'),
-            get_string('setting:urls:info', 'local_df_url', $editor->out())
-        ) );
-
     }
 
-    $ADMIN->add('localplugins', $page);
+    $ADMIN->add('local_df_url', $page);
+    $ADMIN->add('local_df_url', new admin_externalpage('urls_local_df_url', get_string('conversioneditor', 'local_df_url'), new moodle_url('/local/df_url/manage.php')));
 
 }

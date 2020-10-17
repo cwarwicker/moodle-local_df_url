@@ -36,9 +36,9 @@ defined('MOODLE_INTERNAL') || die;
 class record {
 
     /**
-     * @var int Record id.
+     * @var int|false Record id.
      */
-    private $id;
+    private $id = false;
 
     /**
      * @var string Record type, e.g. 'core_course', 'core_mod', etc...
@@ -112,6 +112,14 @@ class record {
     }
 
     /**
+     * Check if the record exists or not.
+     * @return bool
+     */
+    public function exists() : bool {
+        return ($this->id !== false);
+    }
+
+    /**
      * Get a property from the object
      *
      * @param string $name
@@ -175,6 +183,26 @@ class record {
 
         $return = [];
         $records = $DB->get_records('local_df_urls', array('enabled' => 1), 'ordernum DESC', 'id');
+        foreach ($records as $record) {
+            $return[$record->id] = new record($record->id);
+        }
+
+        return $return;
+
+    }
+
+    /**
+     * Get all the enabled records
+     *
+     * @return array
+     * @throws \dml_exception
+     */
+    public static function get_all() : array {
+
+        global $DB;
+
+        $return = [];
+        $records = $DB->get_records('local_df_urls', null, 'enabled DESC, type ASC, ordernum DESC', 'id');
         foreach ($records as $record) {
             $return[$record->id] = new record($record->id);
         }

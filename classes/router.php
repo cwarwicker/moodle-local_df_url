@@ -172,6 +172,7 @@ class router {
             }
 
             // Add this query string -> url conversion to the cache.
+            $url->_local_df_url_id = $record->id;
             $converted[$querystring] = $url;
             $cache->set('converted', $converted);
 
@@ -272,6 +273,7 @@ class router {
                     }
 
                     // Add this moodle url -> nice url inversion to the cache.
+                    $niceurl->_local_df_url_id = $record->id;
                     $inverted[$url] = $niceurl;
                     $cache->set('inverted', $inverted);
 
