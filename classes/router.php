@@ -338,10 +338,26 @@ class router {
         return cache::make('local_df_url', 'urls');
     }
 
+    /**
+     * Invert an array of moodle urls to their nice urls.
+     * @param array $urls Array of moodle urls.
+     * @return array Array of nice urls, with the moodle url as key.
+     * @throws \dml_exception
+     * @throws \moodle_exception
+     */
     public static function invert_urls(array $urls) : array {
 
         $inverted = [];
 
+        foreach ($urls as $url) {
+            $url = strtolower($url);
+            $invert = router::invert_route($url);
+            if ($invert !== false) {
+                $inverted[$url] = $invert;
+            }
+        }
+
+        return $inverted;
 
     }
 
