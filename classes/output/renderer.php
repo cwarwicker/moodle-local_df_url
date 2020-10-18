@@ -41,6 +41,7 @@ class renderer extends plugin_renderer_base {
         global $OUTPUT;
 
         $data = ['rows' => []];
+        $data['url_add'] = new moodle_url('/local/df_url/edit.php');
 
         $records = record::get_all();
         foreach ($records as $record) {

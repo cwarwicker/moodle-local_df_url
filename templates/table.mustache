@@ -2,30 +2,36 @@
     {{#str}} manage:info, local_df_url {{/str}}
 </div>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th></th>
-            <th>{{#str}} type, local_df_url {{/str}}</th>
-            <th>{{#str}} ordernum, local_df_url {{/str}}</th>
-            <th>{{#str}} urlregex, local_df_url {{/str}}</th>
-            <th>{{#str}} conversion, local_df_url {{/str}}</th>
-            <th>{{#str}} actions {{/str}}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#rows}}
+<div>
+    <p><a href="{{{url_add}}}" class="btn btn-primary">{{#str}}add, local_df_url{{/str}}</a></p>
+</div>
+
+<div class="local_df_url-container">
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td><img src="{{enabled}}" alt="{{enabled_alt}}" title="{{enabled_alt}}" /></td>
-                <td>{{type}}</td>
-                <td>{{ordernum}}</td>
-                <td><code>{{regex}}</code></td>
-                <td><code>{{conversion}}</code></td>
-                <td>
-                    <a href="{{{url_edit}}}"><img src="{{{img_edit}}}" alt="{{#str}} edit {{/str}}" /></a>
-                    <a href="{{{url_delete}}}"><img src="{{{img_delete}}}" alt="{{#str}} delete {{/str}}" /></a>
-                </td>
+                <th></th>
+                <th>{{#str}} type, local_df_url {{/str}}</th>
+                <th>{{#str}} ordernum, local_df_url {{/str}}</th>
+                <th>{{#str}} urlregex, local_df_url {{/str}}</th>
+                <th>{{#str}} conversion, local_df_url {{/str}}</th>
+                <th>{{#str}} actions {{/str}}</th>
             </tr>
-        {{/rows}}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {{#rows}}
+                <tr>
+                    <td><img src="{{enabled}}" alt="{{enabled_alt}}" title="{{enabled_alt}}" /></td>
+                    <td>{{type}}</td>
+                    <td>{{ordernum}}</td>
+                    <td><code>{{regex}}</code></td>
+                    <td><code>{{conversion}}</code></td>
+                    <td>
+                        <a href="{{{url_edit}}}"><img src="{{{img_edit}}}" alt="{{#str}} edit {{/str}}" /></a>
+                        <a href="{{{url_delete}}}"><img src="{{{img_delete}}}" alt="{{#str}} delete {{/str}}" /></a>
+                    </td>
+                </tr>
+            {{/rows}}
+        </tbody>
+    </table>
+</div>
