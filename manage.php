@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_df_url\router;
+use core\notification, local_df_url\record, local_df_url\router;
 
 require_once('../../config.php');
 
@@ -38,7 +38,10 @@ $id = optional_param('id', null, PARAM_INT);
 
 if ($action == 'delete') {
     require_sesskey();
-    router::delete($id);
+    $record = new record($id);
+    if ($record->exists() && $record->delete()) {
+        notification::success( get_string('recorddeleted', 'local_df_url', $id) );
+    }
 }
 
 $PAGE->set_context($context);

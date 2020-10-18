@@ -211,4 +211,59 @@ class record {
 
     }
 
+    /**
+     * Delete a route from the database and remove it from the cache.
+     * @return bool
+     * @throws \dml_exception
+     * @throws \coding_exception
+     */
+    public function delete() : bool {
+
+        global $DB;
+
+        // Delete from the cache.
+        static::delete_cache($this->id);
+
+        // Delete the database record.
+        return $DB->delete_records('local_df_urls', array('id' => $this->id));
+
+    }
+
+    /**
+     * Delete any cached conversions/inversions using this route record
+     * @param int $id ID of the record to delete
+     * @return void
+     * @throws \coding_exception
+     */
+    public static function delete_cache(int $id) : void {
+
+        // If we are using caching, remove any conversions or inversions.
+        if (router::using_caching()) {
+
+            // Loop through cached elements and delete any which were using this id.
+            $cache = router::get_cache();
+            $types = $cache->get_many(['converted', 'inverted']);
+
+            // Loop through the types (converted and inverted) and then through their cached conversions/inversions.
+            if ($types) {
+                foreach ($types as $type => $conversions) {
+                    if ($conversions) {
+                        foreach ($conversions as $path => $url) {
+                            // If it was converted/inverted from this record, remove it from the cached array.
+                            if ($url->_local_df_url_id == $id) {
+                                unset($types[$type][$path]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Set alerted arrays back into the cache.
+            $cache->set('converted', $types['converted']);
+            $cache->set('inverted', $types['inverted']);
+
+        }
+
+    }
+
 }

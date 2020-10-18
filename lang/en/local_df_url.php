@@ -35,6 +35,7 @@ $string['manage:info'] = 'You can manage your URL conversions from this page. Fo
 $string['manageurls'] = 'Manage URL Conversions';
 $string['ordernum'] = 'Order';
 $string['pluginname'] = 'URL Converter';
+$string['recorddeleted'] = 'Record [{$a}] deleted';
 $string['setting:caching'] = 'Enable Caching';
 $string['setting:caching:info'] = 'URL conversions can be cached to save processing time.';
 $string['setting:inversion'] = 'Enable URL Inversion';

@@ -187,7 +187,7 @@ class router {
      * @return bool
      * @throws \dml_exception
      */
-    protected static function using_caching() : bool {
+    public static function using_caching() : bool {
         $setting = get_config('local_df_url', 'caching');
         return ($setting === '1');
     }
